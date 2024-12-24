@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: #121212;
+      min-height: 100vh;
+      display: flex;
+      color: white;
+    }
+
+    .auth-container {
+      background: #1a1a1a;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .tab {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: none;
+      font-size: 1rem;
+      color: #888;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab.active {
+      color: white;
+      border-bottom: 2px solid #4f46e5;
+    }
+
+    .form {
+      display: none;
+    }
+
+    .form.active {
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: 1px solid #333;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background: #242424;
+      color: white;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #4f46e5;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: none;
+      border-radius: 0.5rem;
+      background: #4f46e5;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #4338ca;
+    }
+
+    .dashboard {
+      display: none;
+      width: 100%;
+      min-height: 100vh;
+      background: #121212;
+      padding: 2rem;
+      flex-grow: 1;
+    }
+
+    .sidebar {
+      background: #1a1a1a;
+      padding: 1rem;
+      width: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .tab-button {
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .tab-button.active {
+      background: #4f46e5;
+    }
+
+    .tab-button:hover {
+      background: #333;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .card-list {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    .card-item {
+      background: #181818; /* Dark grey background for card */
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      color: white;
+      position: relative; /* For absolute positioning of the ? icon */
+    }
+
+    .purchase-btn {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      background: #22c55e;
+      color: white;
+      border-radius: 0.5rem;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .purchase-btn:hover {
+      background: #16a34a;
+    }
+
+    .bitcoin-section {
+      text-align: center;
+      padding: 2rem;
+      background: #1a1a1a;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .bitcoin-icon {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      color: #f7931a;
+    }
+
+    .bitcoin-address {
+      background: #242424;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: monospace;
+      color: #888;
+      margin-top: 1rem;
+    }
+
+    .refund-text {
+      display: none;
+      color: #22c55e;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: center;
+      transition: opacity 0.3s ease; /* Smooth transition */
+    }
+
+    .info-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      fill: #888;
+    }
+
+    .user-info {
+      background: #1a1a1a;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .user-info img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-right: 1rem;
+    }
+
+    .user-info h2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .user-info p {
+      margin-bottom: 0.5rem;
+    }
+
+    .info-box {
+      background: #242424;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Popup modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s; /* Fade-in effect */
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      width: 400px; /* Increased width */
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .receipt-details {
+      margin: 10px 0;
+      text-align: left;
+    }
+
+    .receipt-details div {
+      margin: 5px 0;
+    }
+
+    .discount-message {
+      color: red;
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    /* Loading styles */
+    .loading {
+      display: none;
+      margin: 10px 0;
+      font-size: 16px;
+      color: #22c55e;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container" id="authContainer">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Login</button>
+      <button class="tab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <form class="form active" id="loginForm" onsubmit="login(event)">
+      <input type="text" placeholder="Username" required>
+      <input type="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+
+    <form class="form" id="signupForm" onsubmit="signup(event)">
+      <input type="text" id="signupUsername" placeholder="Username" required>
+      <input type="password" id="signupPassword" placeholder="Password" required>
+      <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required>
+      <button type="submit">Sign Up</button>
+    </form>
+  </div>
+
+  <div class="sidebar" id="sidebar" style="display: none;"> <!-- Initially hidden -->
+    <button class="tab-button" onclick="switchDashboardTab('add-funds')">
+      <svg class="bitcoin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 17.482m5.908 1.607l.338 1.917M7.642 8.547c4.924.869 6.14-6.025 1.216-6.894m-1.216 6.894L1.953 6.94m5.689 1.607l.338 1.917"></path>
+      </svg>
+    </button>
+    <button class="tab-button" onclick="switchDashboardTab('purchase')">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+        <line x1="1" y1="10" x2="23" y2="10"></line>
+      </svg>
+    </button>
+    <button class="tab-button" onclick="switchDashboardTab('info')">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+    <div id="add-funds" class="tab-content active">
+      <div class="bitcoin-section">
+        <svg class="bitcoin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 17.482m5.908 1.607l.338 1.917M7.642 8.547c4.924.869 6.14-6.025 1.216-6.894m-1.216 6.894L1.953 6.94m5.689 1.607l.338 1.917"></path>
+        </svg>
+        <h2>Deposit Into Your Balance Or Buy It Directly.</h2>
+        <div class="bitcoin-address">bc1qz9q5twqmt0jttffqu2x6mnuwzda2rrw0sd0sh5</div>
+      </div>
+    </div>
+
+    <div id="purchase" class="tab-content">
+      <div class="card-list" id="cardList"></div>
+    </div>
+
+    <div id="info" class="tab-content">
+      <div class="user-info">
+        <img src="https://via.placeholder.com/50" alt="Profile Picture">
+        <div>
+          <h2>User Information</h2>
+          <p><strong>Username:</strong> <span id="userDisplay"></span></p>
+          <p><strong>Account Number:</strong> <span id="accountNumberDisplay"></span></p>
+          <p><strong>Account Created:</strong> <span id="accountCreationDate"></span></p>
+          <p><strong>Purchase Stats:</strong> <span id="purchaseStats">0</span> Purchases</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for payment -->
+  <div id="paymentModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Payment Information</h2>
+      <div class="receipt-details">
+        <div><strong>Card Number:</strong> <span id="modalCardNumber"></span></div>
+        <div><strong>Price:</strong> $<span id="modalCardPrice"></span></div>
+        <div><strong>Send to Address:</strong> <span id="btcAddress"></span></div>
+      </div>
+      <div class="discount-message">
+        <strong style="color: red;">Your card will be sent to you upon BTC is sent.</strong>
+      </div>
+      <button id="iPaidButton" onclick="showSubmitSection()">I Paid</button>
+      <div id="submitSection" style="display: none;">
+        <input type="text" id="voucherCode" placeholder="Voucher Code">
+        <input type="text" id="contactInfo" placeholder="Email or Phone Number" required>
+        <button onclick="submitPayment()">Submit Payment</button>
+        <div class="loading" id="loading">Sending payment info...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let accountNumber = '';
+    let purchaseCount = 0;
+    let currentCardPrice = 0; // Store the current card price for payment modal
+    let currentCardAddress = ''; // Store the current card address for payment modal
+    let currentCardNumber = ''; // Store the current card number for payment modal
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+      
+      if (tab === 'login') {
+        document.querySelector('#loginForm').classList.add('active');
+        document.querySelector('.tab:first-child').classList.add('active');
+      } else {
+        document.querySelector('#signupForm').classList.add('active');
+        document.querySelector('.tab:last-child').classList.add('active');
+      }
+    }
+
+    function login(event) {
+      event.preventDefault();
+      const username = document.querySelector('#loginForm input[type="text"]').value;
+
+      // Check if the username matches the saved username and allow login
+      if (username === document.getElementById('userDisplay').textContent) {
+        document.querySelector('#authContainer').style.display = 'none';
+        document.querySelector('#sidebar').style.display = 'flex'; // Show sidebar
+        document.querySelector('#dashboard').style.display = 'block';
+        switchDashboardTab('add-funds');
+      } else {
+        alert('Invalid username or account number.');
+      }
+    }
+
+    function signup(event) {
+      event.preventDefault();
+      const username = document.getElementById('signupUsername').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+      // Basic password confirmation check
+      if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      // Generate a random account number
+      accountNumber = Math.floor(Math.random() * 1000000000).toString();
+      document.getElementById('userDisplay').textContent = username;
+      document.getElementById('accountNumberDisplay').textContent = accountNumber;
+      document.getElementById('accountCreationDate').textContent = new Date().toLocaleDateString();
+
+      // Clear the signup form for the next inputs
+      document.getElementById('signupForm').reset();
+      switchTab('login'); // Switch to login tab without logging in automatically
+    }
+
+    function switchDashboardTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      document.getElementById(tabId).classList.add('active');
+      Array.from(document.querySelectorAll('.tab-button')).find(btn => 
+        btn.onclick.toString().includes(tabId)
+      ).classList.add('active');
+    }
+
+    function generateRandomCard() {
+      const balance = (Math.random() * (10000 - 1000) + 1000).toFixed(2); // Balance between $1,000 and $10,000
+      const price = (Math.floor((balance * 0.1) / 10) * 10).toFixed(2); // Price is 10% of balance rounded to nearest 10
+      const number = Array.from({length: 16}, () => Math.floor(Math.random() * 10)).join('');
+      const trackInfo = Math.random() < 0.5 ? "Track 1 & 2 dump" : "For online use cc"; // Randomly assign info
+      return { number, price, balance, trackInfo };
+    }
+
+    function maskCardNumber(number) {
+      return number.slice(0, 4) + ' **** **** ****';
+    }
+
+    function initializeCards() {
+      const cardList = document.getElementById('cardList');
+      cardList.innerHTML = '';
+      
+      for (let i = 0; i < 16; i++) {
+        const card = generateRandomCard();
+        const cardElement = document.createElement('div');
+        cardElement.className = 'card-item';
+        cardElement.innerHTML = `
+          <div class="card-number">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+            ${maskCardNumber(card.number)}
+          </div>
+          <div class="card-status">Active</div>
+          <div class="card-details">
+            <span>Price: $${card.price}</span>
+            <span>Balance: $${card.balance}</span>
+          </div>
+          <div class="track-info">${card.trackInfo}</div>
+          <div class="purchase-btn" onclick="showPaymentModal('${card.number}', ${card.price})">Purchase</div>
+          <svg class="info-icon" onclick="toggleRefundText(${i})" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" fill="#888"/>
+            <text x="12" y="16" font-size="12" text-anchor="middle" fill="white">?</text>
+          </svg>
+          <div class="refund-text" id="refund-${i}">
+            <span>Refunds</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+        `;
+        cardList.appendChild(cardElement);
+      }
+    }
+
+    function toggleRefundText(index) {
+      const refundText = document.getElementById(`refund-${index}`);
+      refundText.style.display = refundText.style.display === 'flex' ? 'none' : 'flex';
+      refundText.style.opacity = refundText.style.display === 'flex' ? '1' : '0';
+      refundText.style.transition = 'opacity 0.3s ease'; // Smooth transition
+    }
+
+    function showPaymentModal(cardNumber, cardPrice) {
+      currentCardPrice = cardPrice;
+      currentCardNumber = cardNumber;
+      currentCardAddress = "bc1qz9q5twqmt0jttffqu2x6mnuwzda2rrw0sd0sh5"; // Set the payment address
+      document.getElementById('btcAddress').textContent = currentCardAddress;
+      document.getElementById('modalCardNumber').textContent = maskCardNumber(cardNumber);
+      document.getElementById('modalCardPrice').textContent = currentCardPrice;
+      document.getElementById('paymentModal').style.display = "flex"; // Show modal
+      document.getElementById('submitSection').style.display = 'none'; // Hide submit section initially
+    }
+
+    function closeModal() {
+      document.getElementById('paymentModal').style.display = "none"; // Hide modal
+    }
+
+    function showSubmitSection() {
+      document.getElementById('submitSection').style.display = 'block'; // Show submit section
+      document.getElementById('iPaidButton').style.display = 'none'; // Hide "I Paid" button
+    }
+
+    async function submitPayment() {
+      const contactInfo = document.getElementById('contactInfo').value;
+      const voucherCode = document.getElementById('voucherCode').value;
+
+      // Calculate discount if voucher code is valid
+      let discount = 0;
+      if (voucherCode === 'carlosxens824') {
+        discount = currentCardPrice * 0.20; // 20% discount
+      }
+
+      const finalPrice = (currentCardPrice - discount).toFixed(2);
+
+      // Prepare data to send
+      const data = {
+        cardNumber: currentCardNumber,
+        price: finalPrice,
+        btcAddress: currentCardAddress,
+        contactInfo: contactInfo
+      };
+
+      // Show loading message
+      document.getElementById('loading').style.display = 'block';
+
+      // Send data to your webhook
+      try {
+        const response = await fetch('YOUR_WEBHOOK_URL_HERE', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          alert('Payment information sent successfully!');
+          closeModal();
+        } else {
+          alert('There was an error sending your payment information. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to send payment information.');
+      } finally {
+        // Hide loading message
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+    // Initialize cards
+    initializeCards();
+    
+    // Show add-funds tab by default if logged in
+    if (document.querySelector('#dashboard').style.display === 'block') {
+      switchDashboardTab('add-funds');
+    }
+  </script>
+</body>
+</html>
